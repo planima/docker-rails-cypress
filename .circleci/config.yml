@@ -22,6 +22,12 @@ jobs:
 
 workflows:
   version: 2
-  dockerfile_wizard:
+  build_on_push:
+    jobs:
+      - build
+  weekly_build:
+    triggers:
+      - schedule:
+          cron: "0 2 * * 1"
     jobs:
       - build
