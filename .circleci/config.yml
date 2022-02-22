@@ -4,7 +4,8 @@ image_config: &image_config
 version: 2
 jobs:
   build:
-    machine: true
+    machine:
+      image: ubuntu-2004:202111-02
     environment:
       <<: *image_config
 
