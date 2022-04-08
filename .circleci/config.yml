@@ -23,15 +23,6 @@ jobs:
 
 workflows:
   version: 2
-  build_on_push:
-    jobs:
-      - build
-  weekly_build:
-    triggers:
-      - schedule:
-          cron: "0 2 * * 1"
-          filters:
-            branches:
-              only: "master"
+  update_image:
     jobs:
       - build
