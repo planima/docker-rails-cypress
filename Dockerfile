@@ -17,3 +17,4 @@ RUN curl -L -o yarn.tar.gz "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v
 RUN sudo apt-get update
 RUN sudo apt-get install -y build-essential patch ruby-dev zlib1g-dev liblzma-dev libxml2-dev
 RUN sudo apt-get install -y xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
+RUN sudo apt-get install libgtk-3-0 libgbm-dev libxtst6 xauth
