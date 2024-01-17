@@ -1,4 +1,4 @@
-FROM cimg/ruby:3.1.4-node
+FROM cimg/ruby:3.1.4
 
 # Install the same version of Node.js and Yarn as the 3.0.4-node image
 ENV NODE_VERSION 16.14.2
