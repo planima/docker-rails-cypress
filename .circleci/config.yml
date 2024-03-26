@@ -1,5 +1,5 @@
 image_config: &image_config
-  IMAGE_NAME: ruby:3.0.6-node-cypress
+  IMAGE_NAME: ruby:3.2.3-node-cypress
 
 version: 2
 jobs:
