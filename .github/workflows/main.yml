@@ -25,8 +25,9 @@ jobs:
       - run: |
           git config user.email "bot@planima.se"
           git config user.name "Planibot"
+          git config push.autoSetupRemote true
       - run: |
           git checkout -b chore/ruby-${{ matrix.value }} && \
           echo "${{ matrix.value }}" > .ruby-version && \
           git commit -am "New Ruby version" && \
-          git push --set-upstream
+          git push
