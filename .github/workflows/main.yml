@@ -11,4 +11,5 @@ jobs:
         run: gh pr list
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: get ruby images tags
+        run: curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=100" | jq '.results[].name' | grep -E '"[0-9\.]+"$'
