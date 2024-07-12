@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: my-step
         run: echo "Hello World!"
+      - uses: actions/checkout@v4
+      - run: git checkout HEAD^
       - name: list all PRs
         run: gh pr list
         env:
