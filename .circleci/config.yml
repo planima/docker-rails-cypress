@@ -1,20 +1,19 @@
-image_config: &image_config
-  IMAGE_NAME: ruby:3.1.4-node-cypress
-
 version: 2
 jobs:
   build:
     machine:
       image: ubuntu-2004:202111-02
-    environment:
-      <<: *image_config
 
     steps:
       - checkout
 
+      - run: echo 'export RUBY_VERSION="$(cat .ruby-version)"' >> "$BASH_ENV"
+
+      - run: echo 'export IMAGE_NAME="ruby:$RUBY_VERSION-node-cypress"' >> "$BASH_ENV"
+
       - run: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
-      - run: docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME .
+      - run: docker build --build-arg RUBY_VERSION=$RUBY_VERSION -t $DOCKERHUB_USERNAME/$IMAGE_NAME .
 
       - run: docker push $DOCKERHUB_USERNAME/$IMAGE_NAME && sleep 10
 
