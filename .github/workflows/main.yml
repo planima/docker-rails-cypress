@@ -1,15 +1,27 @@
-name: hello-world
+name: generate
 on: push
 jobs:
-  my-job:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.value }}
     steps:
-      - name: my-step
-        run: echo "Hello World!"
+      - id: matrix
+        run: |
+          TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10" | jq '.results[].name' | grep -E '"[0-9\.]+"$' | paste -sd "," -)
+          echo "value=[$TMP]" >> $GITHUB_OUTPUT
+      - run: |
+          echo "${{ steps.matrix.outputs.value }}"
+  build:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        value: ${{fromJSON(needs.setup.outputs.matrix)}}
+    steps:
       - uses: actions/checkout@v4
-      - name: list all PRs
-        run: gh pr list
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: get ruby images tags
-        run: curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=100" | jq '.results[].name' | grep -E '"[0-9\.]+"$'
+      - run: |
+          git checkout -b chore/ruby-${{ matrix.value }} && \
+          echo "${{ matrix.value }}" > .ruby-version && \
+          git commit -am "New Ruby version" && \
+          git push --set-upstream
