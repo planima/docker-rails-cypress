@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
+          git config user.email "bot@planima.se"
+          git config user.name "Planibot"
+      - run: |
           git checkout -b chore/ruby-${{ matrix.value }} && \
           echo "${{ matrix.value }}" > .ruby-version && \
           git commit -am "New Ruby version" && \
