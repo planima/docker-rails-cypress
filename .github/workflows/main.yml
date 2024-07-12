@@ -9,7 +9,8 @@ jobs:
     steps:
       - id: matrix
         run: |
-          echo "value=[\"a\", \"b\", \"c\"]" >> $GITHUB_OUTPUT
+          TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=20" | jq '.results[].name' | grep -E '"[0-9\.]+"$' | paste -sd "," -)
+          echo "value=[$TMP]" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   build:
