@@ -20,6 +20,8 @@ jobs:
         value: ${{fromJSON(needs.setup.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: chore/update-3.1.6
       - run: |
           git config user.email "bot@planima.se"
           git config user.name "Planibot"
