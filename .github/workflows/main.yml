@@ -1,6 +1,5 @@
 name: Test Github Actions Dynamic Matrix
-on:
-  workflow_dispatch:
+on: push
   
 jobs:
   setup:
