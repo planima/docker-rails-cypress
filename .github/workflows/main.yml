@@ -49,12 +49,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: |
+
+      - name: Update Ruby version
+        run: |
+          echo "${{ matrix.version }}" > .ruby-version
+
+      - name: Commit change
+        run: |
           git config user.email "bot@planima.se"
           git config user.name "Planibot"
           git config push.autoSetupRemote true
-      - run: |
-          git checkout -b chore/ruby-${{ matrix.version }} && \
-          echo "${{ matrix.version }}" > .ruby-version && \
-          git commit -am "New Ruby version" && \
-          git push
+          git commit -am "Update Ruby to ${{ matrix.version }}"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "Ruby ${{ matrix.version }}"
+          body: "This PR updates the Ruby version to ${{ matrix.version }}"
+          author: "Planibot <bot@planima.se>"
+          branch: "chore/ruby-${{ matrix.version }}"
