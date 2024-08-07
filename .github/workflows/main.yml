@@ -18,12 +18,9 @@ jobs:
           echo "---"
           TMP=$(echo "$TMP" | grep -E '^[0-9\.]+$')
           echo "$TMP"
-          echo "---"
-          TMP=$(echo "$TMP" | tr -d '"')
-          echo "$TMP"
       - name: Filter out versions with existing Git branches
         run: |
-          echo $TMP | while read -r version; do
+          echo "$TMP" | while read -r version; do
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
               echo "Skipping $version, branch already exists."
               TMP=$(echo $TMP | sed "s/$version//")
@@ -34,7 +31,7 @@ jobs:
       - name: Set matrix output
         run: |
           if [ -n "$TMP" ]; then
-            TMP=$(echo $TMP | tr ' ' '\n' | jq -R . | jq -s .)
+            TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -s .)
           else
             TMP="[]"
           fi
