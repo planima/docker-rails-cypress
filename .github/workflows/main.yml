@@ -8,15 +8,14 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v4
+      - name: Fetch available Ruby versions from DockerHub
+        run: |
+          VERSIONS=$(curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
+          echo "VERSIONS=$VERSIONS" >> "$GITHUB_ENV"
       - id: matrix
         run: |
-          TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10" | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
-          echo "Found the following versions on DockerHub:"
-          echo "$TMP"
-
-          echo
           echo "Checking branches..."
-          for version in $(echo "$TMP"); do
+          for version in $(echo "$VERSIONS"); do
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
               echo " - Skipping $version, branch already exists."
               TMP=$(echo "$TMP" | sed "/^$version$/d")
