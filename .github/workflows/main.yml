@@ -21,7 +21,7 @@ jobs:
         run: |
           for version in $(echo "$VERSIONS"); do
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
-              VERSIONS=$(echo "$TMP" | sed "/^$version$/d")
+              VERSIONS=$(echo "$VERSIONS" | sed "/^$version$/d")
             fi
           done
 
