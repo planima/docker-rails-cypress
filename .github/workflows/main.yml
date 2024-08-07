@@ -16,7 +16,7 @@ jobs:
 
           echo
           echo "Checking branches..."
-          echo "$TMP" | while read -r version; do
+          for version in $(echo "$TMP"); do
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
               echo " - Skipping $version, branch already exists."
               TMP=$(echo "$TMP" | sed "/^$version$/d")
