@@ -1,6 +1,9 @@
 name: Generate PRs for new Ruby versions
 
-on: push
+on:
+  schedule:
+    # Run every day at 01:00 UTC
+    - cron: '0 1 * * *'
 
 env:
   BRANCH_PREFIX: chore/ruby-
