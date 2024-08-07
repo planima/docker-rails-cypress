@@ -30,9 +30,12 @@ jobs:
               echo " - Adding $version to matrix."
             fi
           done
+          echo
+          echo "$TMP"
+          echo
           echo "Set matrix output..."
           if [ -n "$TMP" ]; then
-            TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -s .)
+            TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -sc .)
           else
             TMP="[]"
           fi
