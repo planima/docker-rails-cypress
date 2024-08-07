@@ -17,6 +17,19 @@ jobs:
           echo "$VERSIONS"
           echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
 
+      - name: Filter versions older than current version
+        run: |
+          CURRENT=$(cat .ruby-version)
+
+          for version in $(echo "$VERSIONS"); do
+            if [ "$(printf '%s\n' "$version" "$CURRENT" | sort -V | head -n1)" = "$version" ]; then
+              VERSIONS=$(echo "$VERSIONS" | sed "/^$version$/d")
+            fi
+          done
+
+          echo "$VERSIONS"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
       - name: Filter existing versions
         run: |
           for version in $(echo "$VERSIONS"); do
