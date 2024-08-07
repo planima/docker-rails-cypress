@@ -20,12 +20,16 @@ jobs:
           echo "$TMP"
       - name: Filter out versions with existing Git branches
         run: |
+          echo "$TMP"
+          echo
           echo "$TMP" | while read -r version; do
+            echo "Checking $version."
+            echo
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
-              echo "Skipping $version, branch already exists."
-              TMP=$(echo $TMP | sed "s/$version//")
+              echo " - Skipping $version, branch already exists."
+              TMP=$(echo "$TMP" | sed "s/$version//")
             else
-              echo "Adding $version to matrix."
+              echo " - Adding $version to matrix."
             fi
           done
       - name: Set matrix output
