@@ -1,5 +1,10 @@
-name: generate
+name: Generate PRs for new Ruby versions
+
 on: push
+
+env:
+  BRANCH_PREFIX: chore/ruby-
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -11,8 +16,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch available Ruby versions from DockerHub
+        env:
+          PAGE_SIZE: 10
         run: |
-          VERSIONS=$(curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
+          VERSIONS=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=$PAGE_SIZE" | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
 
           echo "$VERSIONS"
           echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
@@ -33,7 +40,7 @@ jobs:
       - name: Filter existing versions
         run: |
           for version in $(echo "$VERSIONS"); do
-            if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
+            if git ls-remote --heads origin $BRANCH_PREFIX$version | grep -q $BRANCH_PREFIX$version; then
               VERSIONS=$(echo "$VERSIONS" | sed "/^$version$/d")
             fi
           done
@@ -80,4 +87,4 @@ jobs:
           title: "Ruby ${{ matrix.version }}"
           body: "This PR updates the Ruby version to ${{ matrix.version }}"
           author: "Planibot <bot@planima.se>"
-          branch: "chore/ruby-${{ matrix.version }}"
+          branch: "$BRANCH_PREFIX${{ matrix.version }}"
