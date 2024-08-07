@@ -6,6 +6,8 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.value }}
     steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
       - id: matrix
         run: |
           TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10" | jq '.results[].name' | grep -E '"[0-9\.]+"$' | tr -d '"')
