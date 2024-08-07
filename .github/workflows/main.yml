@@ -20,6 +20,7 @@ jobs:
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
               echo " - Skipping $version, branch already exists."
               TMP=$(echo "$TMP" | sed "/^$version$/d")
+              echo "$TMP"
             else
               echo " - Adding $version to matrix."
             fi
