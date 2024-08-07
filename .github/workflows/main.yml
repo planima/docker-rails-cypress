@@ -13,14 +13,14 @@ jobs:
           TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10")
           echo $TMP
           echo "---"
-          TMP=$(echo $TMP | jq -r '.results[].name')
-          echo $TMP
+          TMP=$(echo "$TMP" | jq -r '.results[].name')
+          echo "$TMP"
           echo "---"
-          TMP=$(echo $TMP | grep -E '^[0-9\.]+$')
-          echo $TMP
+          TMP=$(echo "$TMP" | grep -E '^[0-9\.]+$')
+          echo "$TMP"
           echo "---"
-          TMP=$(echo $TMP | tr -d '"')
-          echo $TMP
+          TMP=$(echo "$TMP" | tr -d '"')
+          echo "$TMP"
       - name: Filter out versions with existing Git branches
         run: |
           echo $TMP | while read -r version; do
