@@ -4,16 +4,19 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.matrix.outputs.value }}
+      versions: ${{ steps.matrix.outputs.versions }}
+
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v4
+
       - name: Fetch available Ruby versions from DockerHub
         run: |
           VERSIONS=$(curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
 
           echo "$VERSIONS"
           echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
       - name: Filter existing versions
         run: |
           for version in $(echo "$VERSIONS"); do
@@ -24,23 +27,26 @@ jobs:
 
           echo "$VERSIONS"
           echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
       - name: Set matrix output
         id: matrix
         run: |
           if [ -n "$VERSIONS" ]; then
-            VERSIONS=$(echo "$VERSIONS" | tr ' ' '\n' | jq -R . | jq -sc .)
+            OUTPUT=$(echo "$VERSIONS" | tr ' ' '\n' | jq -R . | jq -sc .)
           else
-            VERSIONS="[]"
+            OUTPUT="[]"
           fi
-          echo "Output: $VERSIONS"
 
-          echo "value=$VERSIONS" >> $GITHUB_OUTPUT
+          echo "Output: $OUTPUT"
+          echo "versions=$OUTPUT" >> $GITHUB_OUTPUT
+
   build:
     needs: [ setup ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        value: ${{fromJSON(needs.setup.outputs.matrix)}}
+        version: ${{fromJSON(needs.setup.outputs.versions)}}
+
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -48,7 +54,7 @@ jobs:
           git config user.name "Planibot"
           git config push.autoSetupRemote true
       - run: |
-          git checkout -b chore/ruby-${{ matrix.value }} && \
-          echo "${{ matrix.value }}" > .ruby-version && \
+          git checkout -b chore/ruby-${{ matrix.version }} && \
+          echo "${{ matrix.version }}" > .ruby-version && \
           git commit -am "New Ruby version" && \
           git push
