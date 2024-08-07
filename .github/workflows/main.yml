@@ -8,8 +8,25 @@ jobs:
     steps:
       - id: matrix
         run: |
-          TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10" | jq '.results[].name' | grep -E '"[0-9\.]+"$' | paste -sd "," -)
-          echo "value=[$TMP]" >> $GITHUB_OUTPUT
+          TMP=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10" | jq '.results[].name' | grep -E '"[0-9\.]+"$' | tr -d '"')
+      - name: Filter out versions with existing Git branches
+        run: |
+          echo $TMP | while read -r version; do
+            if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
+              echo "Skipping $version, branch already exists."
+              TMP=$(echo $TMP | sed "s/$version//")
+            else
+              echo "Adding $version to matrix."
+            fi
+          done
+      - name: Set matrix output
+        run: |
+          if [ -n "$TMP" ]; then
+            TMP=$(echo $TMP | tr ' ' '\n' | jq -R . | jq -s .)
+          else
+            TMP="[]"
+          fi
+          echo "value=$TMP" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   build:
