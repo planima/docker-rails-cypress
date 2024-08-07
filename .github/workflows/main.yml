@@ -20,21 +20,16 @@ jobs:
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
               echo " - Skipping $version, branch already exists."
               TMP=$(echo "$TMP" | sed "/^$version$/d")
-              echo "$TMP"
-            else
-              echo " - Adding $version to matrix."
             fi
           done
 
-          echo
-          echo "$TMP"
-          echo
           echo "Set matrix output..."
           if [ -n "$TMP" ]; then
             TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -sc .)
           else
             TMP="[]"
           fi
+          echo "Output: $TMP"
 
           echo "value=$TMP" >> $GITHUB_OUTPUT
   build:
