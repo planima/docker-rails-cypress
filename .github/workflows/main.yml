@@ -18,9 +18,7 @@ jobs:
           echo "---"
           TMP=$(echo "$TMP" | grep -E '^[0-9\.]+$')
           echo "$TMP"
-      - name: Filter out versions with existing Git branches
-        run: |
-          echo "$TMP"
+          echo "Checking branches..."
           echo
           echo "$TMP" | while read -r version; do
             echo "Checking $version."
@@ -32,8 +30,7 @@ jobs:
               echo " - Adding $version to matrix."
             fi
           done
-      - name: Set matrix output
-        run: |
+          echo "Set matrix output..."
           if [ -n "$TMP" ]; then
             TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -s .)
           else
