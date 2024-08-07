@@ -17,7 +17,7 @@ jobs:
 
       - name: Fetch available Ruby versions from DockerHub
         env:
-          PAGE_SIZE: 10
+          PAGE_SIZE: 30
         run: |
           VERSIONS=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=$PAGE_SIZE" | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
 
