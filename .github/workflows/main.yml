@@ -10,30 +10,31 @@ jobs:
         uses: actions/checkout@v4
       - name: Fetch available Ruby versions from DockerHub
         run: |
-          {
-            echo 'VERSIONS<<EOF'
-            curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$'
-            echo EOF
-          } >> "$GITHUB_ENV"
-      - id: matrix
+          VERSIONS=$(curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
+
+          echo "$VERSIONS"
+          echo "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+      - name: Filter existing versions
         run: |
-          echo "Checking branches..."
           for version in $(echo "$VERSIONS"); do
             if git ls-remote --heads origin chore/ruby-$version | grep -q chore/ruby-$version; then
-              echo " - Skipping $version, branch already exists."
-              TMP=$(echo "$TMP" | sed "/^$version$/d")
+              VERSIONS=$(echo "$TMP" | sed "/^$version$/d")
             fi
           done
 
-          echo "Set matrix output..."
-          if [ -n "$TMP" ]; then
-            TMP=$(echo "$TMP" | tr ' ' '\n' | jq -R . | jq -sc .)
+          echo "$VERSIONS"
+          echo "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+      - name: Set matrix output
+        id: matrix
+        run: |
+          if [ -n "$VERSIONS" ]; then
+            VERSIONS=$(echo "$VERSIONS" | tr ' ' '\n' | jq -R . | jq -sc .)
           else
-            TMP="[]"
+            VERSIONS="[]"
           fi
-          echo "Output: $TMP"
+          echo "Output: $VERSIONS"
 
-          echo "value=$TMP" >> $GITHUB_OUTPUT
+          echo "value=$VERSIONS" >> $GITHUB_OUTPUT
   build:
     needs: [ setup ]
     runs-on: ubuntu-latest
