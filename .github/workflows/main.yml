@@ -13,7 +13,7 @@ jobs:
           VERSIONS=$(curl 'https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=10' | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
 
           echo "$VERSIONS"
-          echo "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
       - name: Filter existing versions
         run: |
           for version in $(echo "$VERSIONS"); do
@@ -23,7 +23,7 @@ jobs:
           done
 
           echo "$VERSIONS"
-          echo "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
       - name: Set matrix output
         id: matrix
         run: |
