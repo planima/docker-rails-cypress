@@ -1,0 +1,93 @@
+name: Generate PRs for new Ruby versions
+
+on:
+  schedule:
+    # Run every day at 01:00 UTC
+    - cron: '0 1 * * *'
+
+env:
+  BRANCH_PREFIX: chore/ruby-
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.matrix.outputs.versions }}
+
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+
+      - name: Fetch available Ruby versions from DockerHub
+        env:
+          PAGE_SIZE: 30
+        run: |
+          VERSIONS=$(curl "https://hub.docker.com/v2/namespaces/cimg/repositories/ruby/tags?page_size=$PAGE_SIZE" | jq -r '.results[].name' | grep -E '^[0-9\.]+$')
+
+          echo "$VERSIONS"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
+      - name: Filter versions older than current version
+        run: |
+          CURRENT=$(cat .ruby-version)
+
+          for version in $(echo "$VERSIONS"); do
+            if [ "$(printf '%s\n' "$version" "$CURRENT" | sort -V | head -n1)" = "$version" ]; then
+              VERSIONS=$(echo "$VERSIONS" | sed "/^$version$/d")
+            fi
+          done
+
+          echo "$VERSIONS"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
+      - name: Filter existing versions
+        run: |
+          for version in $(echo "$VERSIONS"); do
+            if git ls-remote --heads origin $BRANCH_PREFIX$version | grep -q $BRANCH_PREFIX$version; then
+              VERSIONS=$(echo "$VERSIONS" | sed "/^$version$/d")
+            fi
+          done
+
+          echo "$VERSIONS"
+          echo -e "VERSIONS<<EOF\n$VERSIONS\nEOF" >> "$GITHUB_ENV"
+
+      - name: Set matrix output
+        id: matrix
+        run: |
+          if [ -n "$VERSIONS" ]; then
+            OUTPUT=$(echo "$VERSIONS" | tr ' ' '\n' | jq -R . | jq -sc .)
+          else
+            OUTPUT="[]"
+          fi
+
+          echo "Output: $OUTPUT"
+          echo "versions=$OUTPUT" >> $GITHUB_OUTPUT
+
+  build:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ${{fromJSON(needs.setup.outputs.versions)}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Ruby version
+        run: |
+          echo "${{ matrix.version }}" > .ruby-version
+
+      - name: Commit change
+        run: |
+          git config user.email "bot@planima.se"
+          git config user.name "Planibot"
+          git config push.autoSetupRemote true
+          git commit -am "Update Ruby to ${{ matrix.version }}"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "Ruby ${{ matrix.version }}"
+          body: "This PR updates the Ruby version to ${{ matrix.version }}"
+          author: "Planibot <bot@planima.se>"
+          branch: "$BRANCH_PREFIX${{ matrix.version }}"
