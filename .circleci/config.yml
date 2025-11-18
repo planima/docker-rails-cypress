@@ -9,7 +9,7 @@ jobs:
 
       - run: echo 'export RUBY_VERSION="$(cat .ruby-version)"' >> "$BASH_ENV"
 
-      - run: echo 'export IMAGE_NAME="ruby:$RUBY_VERSION-node:24-cypress"' >> "$BASH_ENV"
+      - run: echo 'export IMAGE_NAME="ruby:$RUBY_VERSION-node24-cypress"' >> "$BASH_ENV"
 
       - run: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
