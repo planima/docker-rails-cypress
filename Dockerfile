@@ -19,3 +19,8 @@ RUN sudo apt-get update
 RUN sudo apt-get install -y build-essential patch ruby-dev zlib1g-dev liblzma-dev libxml2-dev
 RUN sudo apt-get install -y xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
 RUN sudo apt-get install libgtk-3-0 libgbm-dev libxtst6 xauth
+
+# cimg/ruby:3.4.x ships libvips42 8.12 (Ubuntu 22.04), which is too old for the guard in
+# Active Storage 8.0 (requires libvips >= 8.13) and breaks Rails boot whenever ruby-vips can find it.
+# Nothing else depends on it, and the apps using this image do not use Active Storage variants.
+RUN sudo apt-get remove -y libvips42
